@@ -25,44 +25,64 @@ function saveFile(file, contents){
  * @param file - The full filename path we wish to load an object from.
  * @return contents - The object converted from JSON.
  */
-function loadFile(file){
-
+function loadFile(e){
+var fs = require('fs');
+var data = fs.readFileSync(e, 'utf8');
+var contents = JSON.parse(data);
+return contents;
 }
-
+//myBoard.printBoard();
 /**
  * Driver function.  "main" method, if you will.
  */
 function start(){
  	// Local variables
- //	let p=0;
+ //	let p=0;let myBoard = new board(height, width);
 //	let turns=["4 3","5 3","6 3","5 2","6 5","5 6"];
-	
-	let height = prompt('What height for your board? ');
-	let width = prompt('What width for your board? ');
+let height=4;
+let width=4;
+let myBoard=new board(4,4);
+let load = prompt("Enter l to load a board from a file or x to choose make your own: ");
+if(load == 'l'){
+  let file = prompt("Enter the full filename path you wish to load an object from: ");
+  let contents =  loadFile(file);
+  myBoard = new board(contents.height, contents.width);
+  height = contents.height;
+  width = contents.width
+  myBoard.board = contents.board;
+}else{
+   height = prompt('What height for your board? ');
+   width = prompt('What width for your board? ');
 	//height=8;
 	//width=8;
 	// SYNCHRONOUSLY read from keyboard
 	console.log('Creating a board with size ' + height + ' x ' + width + '.');
 	// Create new board object
-	let myBoard = new board(height, width);
-  
+	myBoard = new board(height, width);
+}
+
   let disc = prompt('What color B or W? ');	// disc color selected by start player
-	//disc='B';
+	//disc='B';Congraduations
 	// Print board
 
   // Loop, asking user input, calling appropriate functions.
 while(myBoard.isGameOver()){
   myBoard.printBoard();
-  
   if(!myBoard.isValidMoveAvailable(disc)) {
 			console.log("No valid moves available for player. You lose your turn.");
 			  disc=(disc=='B' ? 'W':'B');
-	} 
+	}
   else{
-  
-  let input = prompt("Its "+disc+"turn where do you want to move x & y:");
-  
-    let pos=input.split(" "); 
+
+  let input = prompt("It's "+disc+"'s turn where do you want to move x (space) y (or enter s to save): ");
+
+  if(input == 's') {
+	let file = prompt("Enter the full filename path we want to save to: ");
+	saveFile(file, myBoard);
+	continue;
+  }
+
+    let pos=input.split(" ");
 	let r=Number(pos[0]);
 	let c=Number(pos[1]);
   if (r < 1 || r > height || c < 1 || c > width) {
@@ -79,10 +99,10 @@ while(myBoard.isGameOver()){
   	  	console.log("Is valid Avalibale: "+myBoard.isValidMoveAvailable(disc))
   	  disc=(disc=='B' ? 'W':'B');
   }
-  
+
 }
   myBoard.printBoard();
-  console.log("Congraduations "+myBoard.checkWinner()+" won the game ");
+  console.log("Congratulations "+myBoard.checkWinner()+" won the game ");
 	// Save board example code.
 	saveFile("test.json", myBoard);
 }
